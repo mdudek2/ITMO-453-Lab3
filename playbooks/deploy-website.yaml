@@ -289,3 +289,50 @@
       ansible.builtin.systemd:
         name: grafana-server
         state: restarted
+
+# install uptime-kuma on the server
+- name: Install Docker and uptime-kuma
+  hosts: labproject
+  become: true
+  become_method: sudo
+
+  vars:
+    ansible_user: admin
+    ansible_ssh_private_key_file: /home/maks/.ssh/project-ssh-key
+  
+  tasks:
+  
+  # install needed dependencies
+  - name: Install required packages
+    ansible.builtin.apt:
+      name:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+      state: present
+      update_cache: true
+  
+  # grab the script from the docker website and run it
+  - name: Install Docker using the official installation script
+    ansible.builtin.shell: |
+      curl -fsSL https://get.docker.com | bash
+    args:
+      creates: /usr/bin/docker
+  
+  # start the docker service
+  - name: Ensure Docker service is started and enabled
+    ansible.builtin.service:
+      name: docker
+      state: started
+      enabled: true
+  
+  # start the docker container for uptime-kuma
+  - name: Run Uptime Kuma container
+    community.docker.docker_container:
+      name: uptime-kuma
+      image: louislam/uptime-kuma
+      state: started
+      restart_policy: always
+      published_ports:
+        - "3001:3001"
