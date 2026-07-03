@@ -1,6 +1,6 @@
-# ITMO-453 Monitoring And Metrics Project
+# ITMO-453 Lab3
 
-The code in this repository is based off ITMO-453-Lab2. The system/infrastructure is the same with the added addition of a Grafana server being deployed on the prometheus instance.
+The code in this repository was copied over from the monitoring and metrics project and the system/infrastructure is largely the same.
 
 ## Requirements:
 
