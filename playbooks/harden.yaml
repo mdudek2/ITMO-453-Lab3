@@ -76,6 +76,11 @@
         autoremove: true
         purge: true
     
+    # reset any failed services
+    - name: Reset all failed systemd units
+      ansible.builtin.systemd:
+        reset_failed: yes
+
     # configure ssh to only accept keys for authentication
     - name: Install hardened SSH configuration
       ansible.builtin.copy:
