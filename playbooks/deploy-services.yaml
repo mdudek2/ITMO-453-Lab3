@@ -386,6 +386,22 @@
         group: grafana
         mode: '0644'
 
+    - name: Copy SSH Alerts
+      ansible.builtin.copy:
+        src: "/home/maks/Documents/repos/mdudek2/ITMO-453-Lab3/alerts/SSH.yaml"
+        dest: /etc/grafana/provisioning/alerting/SSH.yaml
+        owner: grafana
+        group: grafana
+        mode: '0644'
+
+    - name: Copy Service Failure Alerts
+      ansible.builtin.copy:
+        src: "/home/maks/Documents/repos/mdudek2/ITMO-453-Lab3/alerts/SERVICES.yaml"
+        dest: /etc/grafana/provisioning/alerting/SERVICES.yaml
+        owner: grafana
+        group: grafana
+        mode: '0644'
+
     - name: Copy Notification Policies
       ansible.builtin.copy:
         src: "/home/maks/Documents/repos/mdudek2/ITMO-453-Lab3/alerts/notification-policies.yaml"

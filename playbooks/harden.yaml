@@ -84,3 +84,13 @@
       ansible.builtin.user:
         name: ubuntu
         password_lock: true
+
+    # remove unused default packages
+    - name: Remove unused default packages
+      ansible.builtin.apt:
+        name:
+          - fwupd
+          - openipmi
+        state: absent
+        autoremove: true
+        purge: true

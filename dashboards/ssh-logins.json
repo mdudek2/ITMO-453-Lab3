@@ -51,7 +51,7 @@
         "kind": "Panel",
         "spec": {
           "id": 2,
-          "title": "Succesful SSH Login Attempts",
+          "title": "Successful SSH Login Attempts",
           "description": "Displays the total number of successful SSH login attempts",
           "links": [],
           "data": {

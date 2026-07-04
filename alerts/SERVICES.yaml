@@ -1,0 +1,176 @@
+apiVersion: 1
+groups:
+    - orgId: 1
+      name: Services
+      folder: ITMO-453-Project
+      interval: 1m
+      rules:
+        - uid: dfr30yx37jqioc
+          title: Systemd Units State
+          condition: E
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 86400
+                to: 0
+              datasourceUid: prometheus
+              model:
+                datasource:
+                    type: prometheus
+                    uid: prometheus
+                editorMode: code
+                expr: node_systemd_units{instance="127.0.0.1:9100",job="node",state="activating"}
+                format: time_series
+                instant: true
+                interval: ""
+                intervalMs: 15000
+                legendFormat: Activating
+                maxDataPoints: 43200
+                range: false
+                refId: A
+                step: 240
+            - refId: B
+              relativeTimeRange:
+                from: 86400
+                to: 0
+              datasourceUid: prometheus
+              model:
+                datasource:
+                    type: prometheus
+                    uid: prometheus
+                editorMode: code
+                expr: node_systemd_units{instance="127.0.0.1:9100",job="node",state="active"}
+                format: time_series
+                instant: true
+                interval: ""
+                intervalMs: 15000
+                legendFormat: Active
+                maxDataPoints: 43200
+                range: false
+                refId: B
+                step: 240
+            - refId: C
+              relativeTimeRange:
+                from: 86400
+                to: 0
+              datasourceUid: prometheus
+              model:
+                datasource:
+                    type: prometheus
+                    uid: prometheus
+                editorMode: code
+                expr: node_systemd_units{instance="127.0.0.1:9100",job="node",state="deactivating"}
+                format: time_series
+                instant: true
+                interval: ""
+                intervalMs: 15000
+                legendFormat: Deactivating
+                maxDataPoints: 43200
+                range: false
+                refId: C
+                step: 240
+            - refId: D
+              relativeTimeRange:
+                from: 86400
+                to: 0
+              datasourceUid: prometheus
+              model:
+                datasource:
+                    type: prometheus
+                    uid: prometheus
+                editorMode: code
+                expr: node_systemd_units{instance="127.0.0.1:9100",job="node",state="failed"}
+                format: time_series
+                instant: true
+                interval: ""
+                intervalMs: 15000
+                legendFormat: Failed
+                maxDataPoints: 43200
+                range: false
+                refId: D
+                step: 240
+            - refId: E
+              relativeTimeRange:
+                from: 86400
+                to: 0
+              datasourceUid: prometheus
+              model:
+                datasource:
+                    type: prometheus
+                    uid: prometheus
+                editorMode: code
+                expr: node_systemd_units{instance="127.0.0.1:9100",job="node",state="inactive"}
+                format: time_series
+                instant: true
+                interval: ""
+                intervalMs: 15000
+                legendFormat: Inactive
+                maxDataPoints: 43200
+                range: false
+                refId: E
+                step: 240
+            - refId: F
+              queryType: expression
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params: []
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: E
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: F
+                type: reduce
+            - refId: G
+              queryType: expression
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - G
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: F
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: G
+                type: threshold
+          dashboardUid: rYdddlPWk
+          panelId: 298
+          noDataState: NoData
+          execErrState: Error
+          for: 1m
+          keepFiringFor: 1m
+          annotations:
+            __dashboardUid__: rYdddlPWk
+            __panelId__: "298"
+            summary: A service has failed.
+          labels: {}
+          isPaused: false
+          notification_settings:
+            receiver: Email Alerts
