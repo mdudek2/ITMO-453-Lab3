@@ -134,7 +134,126 @@
         name: prometheus
         state: restarted
 
-# install grafana on the prometheus node
+# install uptime-kuma on the server
+- name: Install Docker and additional monitoring and logging services
+  hosts: labproject
+  become: true
+  become_method: sudo
+
+  vars:
+    ansible_user: admin
+    ansible_ssh_private_key_file: /home/maks/.ssh/project-ssh-key
+  
+  tasks:
+  
+  # install needed dependencies
+  - name: Install required packages
+    ansible.builtin.apt:
+      name:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+      state: present
+      update_cache: true
+  
+  # grab the script from the docker website and run it
+  - name: Install Docker using the official installation script
+    ansible.builtin.shell: |
+      curl -fsSL https://get.docker.com | bash
+    args:
+      creates: /usr/bin/docker
+  
+  # start the docker service
+  - name: Ensure Docker service is started and enabled
+    ansible.builtin.service:
+      name: docker
+      state: started
+      enabled: true
+  
+  # start the docker container for uptime-kuma
+  - name: Run Uptime Kuma container
+    community.docker.docker_container:
+      name: uptime-kuma
+      image: louislam/uptime-kuma
+      state: started
+      restart_policy: always
+      published_ports:
+        - "3001:3001"
+
+# install Alloy and loki
+
+- name: Install and Configure Loki and Alloy
+  hosts: labproject
+  become: true
+  become_method: sudo
+
+  vars:
+    ansible_user: admin
+    ansible_ssh_private_key_file: /home/maks/.ssh/project-ssh-key
+
+  tasks:
+  
+  - name: Ensure APT keyrings directory exists
+    file:
+      path: /etc/apt/keyrings
+      state: directory
+      mode: '0755'
+
+  - name: Download Grafana GPG key
+    get_url:
+      url: https://apt.grafana.com/gpg-full.key
+      dest: /etc/apt/keyrings/grafana.asc
+      mode: '0644'
+
+  - name: Add Grafana APT repository
+    apt_repository:
+      repo: "deb [signed-by=/etc/apt/keyrings/grafana.asc] https://apt.grafana.com stable main"
+      filename: grafana
+      state: present
+
+  - name: Update APT cache
+    apt:
+      update_cache: yes
+
+  - name: Install Grafana Alloy and Loki
+    apt:
+      name:
+        - alloy
+        - loki
+      state: present
+
+  - name: Ensure Alloy config directory exists
+    file:
+      path: /etc/alloy
+      state: directory
+      mode: '0755'
+
+  - name: Copy Alloy configuration file
+    copy:
+      src: /home/maks/Documents/repos/mdudek2/ITMO-453-Lab3/configs/config.alloy
+      dest: /etc/alloy/config.alloy
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Reload systemd daemon
+    systemd:
+      daemon_reload: yes
+
+  - name: Enable and start Loki service
+    systemd:
+      name: loki
+      enabled: yes
+      state: started
+
+  - name: Enable and start Alloy service
+    systemd:
+      name: alloy
+      enabled: yes
+      state: started 
+
+# install grafana
 - name: Install and configure Grafana
   hosts: labproject
   become: true
@@ -237,6 +356,14 @@
         group: grafana
         mode: '0644'
 
+    - name: Copy Third Grafana Dashboard
+      ansible.builtin.copy:
+        src: "/home/maks/Documents/repos/mdudek2/ITMO-453-Lab3/dashboards/ssh-logins.json"
+        dest: /var/lib/grafana/dashboards/ssh-logins.json
+        owner: grafana
+        group: grafana
+        mode: '0644'
+
     - name: Restart Grafana
       ansible.builtin.systemd:
         name: grafana-server
@@ -289,50 +416,3 @@
       ansible.builtin.systemd:
         name: grafana-server
         state: restarted
-
-# install uptime-kuma on the server
-- name: Install Docker and uptime-kuma
-  hosts: labproject
-  become: true
-  become_method: sudo
-
-  vars:
-    ansible_user: admin
-    ansible_ssh_private_key_file: /home/maks/.ssh/project-ssh-key
-  
-  tasks:
-  
-  # install needed dependencies
-  - name: Install required packages
-    ansible.builtin.apt:
-      name:
-        - apt-transport-https
-        - ca-certificates
-        - curl
-        - software-properties-common
-      state: present
-      update_cache: true
-  
-  # grab the script from the docker website and run it
-  - name: Install Docker using the official installation script
-    ansible.builtin.shell: |
-      curl -fsSL https://get.docker.com | bash
-    args:
-      creates: /usr/bin/docker
-  
-  # start the docker service
-  - name: Ensure Docker service is started and enabled
-    ansible.builtin.service:
-      name: docker
-      state: started
-      enabled: true
-  
-  # start the docker container for uptime-kuma
-  - name: Run Uptime Kuma container
-    community.docker.docker_container:
-      name: uptime-kuma
-      image: louislam/uptime-kuma
-      state: started
-      restart_policy: always
-      published_ports:
-        - "3001:3001"

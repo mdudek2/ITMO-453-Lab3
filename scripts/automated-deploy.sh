@@ -12,8 +12,8 @@ bash initial-hardening.sh
 echo "Running setup-firewall.sh..."
 bash setup-firewall.sh
 sleep 3
-echo "running deploy-site.sh..."
-bash deploy-site.sh
+echo "running deploy-services.sh..."
+bash deploy-services.sh
 #echo "Running openscap-hardening.sh..."
 #echo "This will probably take a while..."
 #sleep 10

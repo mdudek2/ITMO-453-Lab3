@@ -51,6 +51,11 @@
       ansible.builtin.apt:
         update_cache: true
         upgrade: safe
+
+    # set the time zone
+    - name: Set timezone to America/Chicago
+      community.general.timezone:
+        name: America/Chicago
      
     # daily updates
     - name: Schedule the system to update daily via cron
