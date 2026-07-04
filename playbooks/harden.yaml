@@ -65,6 +65,16 @@
         hour: "2"
         user: root
         job: "sudo apt-get update && sudo apt-get upgrade -y"
+
+    # remove unused default packages
+    - name: Remove unused default packages
+      ansible.builtin.apt:
+        name:
+          - fwupd
+          - openipmi
+        state: absent
+        autoremove: true
+        purge: true
     
     # configure ssh to only accept keys for authentication
     - name: Install hardened SSH configuration
@@ -84,13 +94,3 @@
       ansible.builtin.user:
         name: ubuntu
         password_lock: true
-
-    # remove unused default packages
-    - name: Remove unused default packages
-      ansible.builtin.apt:
-        name:
-          - fwupd
-          - openipmi
-        state: absent
-        autoremove: true
-        purge: true
