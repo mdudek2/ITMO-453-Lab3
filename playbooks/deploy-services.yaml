@@ -252,6 +252,19 @@
       name: alloy
       enabled: yes
       state: started 
+    
+    # Loki does not seem to come online unless something pings it
+    # Some dashboards don't provision correctly without loki being up and ready
+    # therefore we have to ping it until it's ready before we can even begin to 
+    # install grafana. (I wish I could run terraform destroy on myself)
+  - name: Wait for Loki instance to be fully ready
+    ansible.builtin.uri:
+      url: "http://localhost:3100/ready"
+      return_content: yes
+    register: loki_status
+    until: loki_status.content | trim == "ready"
+    retries: 40       # 40 attempts x 15 seconds = 10 minutes max wait time
+    delay: 15         # Wait 15 seconds between retries
 
 # install grafana
 - name: Install and configure Grafana
@@ -358,8 +371,8 @@
 
     - name: Copy Third Grafana Dashboard
       ansible.builtin.copy:
-        src: "/home/maks/Documents/repos/mdudek2/ITMO-453-Lab3/dashboards/ssh-logins.json"
-        dest: /var/lib/grafana/dashboards/ssh-logins.json
+        src: "/home/maks/Documents/repos/mdudek2/ITMO-453-Lab3/dashboards/ssh-login-dashboard.json"
+        dest: /var/lib/grafana/dashboards/ssh-login-dashboard.json
         owner: grafana
         group: grafana
         mode: '0644'
@@ -386,18 +399,18 @@
         group: grafana
         mode: '0644'
 
-    - name: Copy SSH Alerts
+    - name: Copy SSH Login Alerts
       ansible.builtin.copy:
-        src: "/home/maks/Documents/repos/mdudek2/ITMO-453-Lab3/alerts/SSH.yaml"
-        dest: /etc/grafana/provisioning/alerting/SSH.yaml
+        src: "/home/maks/Documents/repos/mdudek2/ITMO-453-Lab3/alerts/ssh-login-alerts.yaml"
+        dest: /etc/grafana/provisioning/alerting/ssh-login-alerts.yaml
         owner: grafana
         group: grafana
         mode: '0644'
 
     - name: Copy Service Failure Alerts
       ansible.builtin.copy:
-        src: "/home/maks/Documents/repos/mdudek2/ITMO-453-Lab3/alerts/SERVICES.yaml"
-        dest: /etc/grafana/provisioning/alerting/SERVICES.yaml
+        src: "/home/maks/Documents/repos/mdudek2/ITMO-453-Lab3/alerts/service-failure.yaml"
+        dest: /etc/grafana/provisioning/alerting/service-failure.yaml
         owner: grafana
         group: grafana
         mode: '0644'

@@ -75,11 +75,12 @@
         state: absent
         autoremove: true
         purge: true
-    
-    # reset any failed services
+     
+     # reset failed units
     - name: Reset all failed systemd units
-      ansible.builtin.systemd:
-        reset_failed: yes
+      ansible.builtin.command:
+        cmd: systemctl reset-failed
+      changed_when: false
 
     # configure ssh to only accept keys for authentication
     - name: Install hardened SSH configuration
